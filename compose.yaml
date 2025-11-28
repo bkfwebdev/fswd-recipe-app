@@ -1,0 +1,35 @@
+version: '3.9'
+services:
+  recipe-database:
+    image: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - recipe-data:/data/db
+  
+  recipe-backend:
+    build: ./backend/ 
+    environment:
+      - PORT=3001
+      - DATABASE_URL=mongodb://recipe-database:27017/recipes
+      - JWT_SECRET=Moy-Bah-Yan-2025
+    ports:
+      - '3001:3001'
+    depends_on:
+      - recipe-database
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+  
+  recipe-frontend:
+    build:
+      context: ./frontend/project1
+      args:
+        VITE_BACKEND_URL: http://localhost:3001/api/v1
+    ports:
+      - '3000:80'
+    depends_on:
+      - recipe-backend
+
+volumes:
+  recipe-data:
