@@ -2,15 +2,18 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getRecipes, getPopularRecipes } from '../api/recipes'
 import { useAuth } from '../contexts/useAuth'
+import { useSocket } from '../hooks/useSocket'
 import { Header } from '../components/Header'
 import RecipeList from '../components/RecipeList'
 import CreateRecipe from '../components/CreateRecipe'
 import RecipeFilter from '../components/RecipeFilter'
+import Notification from '../components/Notification'
 
 export default function Recipes() {
   const [token] = useAuth()
   const [sortBy, setSortBy] = useState('createdAt-desc')
   const [showPopular, setShowPopular] = useState(false)
+  const { notification, closeNotification } = useSocket()
 
   // Parse sortBy into field and order
   const [sortField, sortOrder] = sortBy.split('-')
@@ -55,6 +58,10 @@ export default function Recipes() {
         </>
       ) : (
         <p>No recipes yet. {token ? "Create the first one!" : "Log in to create recipes!"}</p>
+      )}
+
+      {notification && (
+        <Notification recipe={notification} onClose={closeNotification} />
       )}
     </div>
   )
