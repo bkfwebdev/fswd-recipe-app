@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getRecipeById } from '../api/recipes'
 import { Header } from '../components/Header'
+import LikeButton from '../components/LikeButton'
 
 export default function RecipeDetail() {
   const { id } = useParams()
@@ -25,7 +26,10 @@ export default function RecipeDetail() {
           <img src={recipe.imageUrl} alt={recipe.title} className="recipe-detail-image" />
         )}
         
-        <h1>{recipe.title}</h1>
+        <div className="recipe-header">
+          <h1>{recipe.title}</h1>
+          <LikeButton recipe={recipe} />
+        </div>
         
         <div className="recipe-meta-detail">
           {recipe.prepTime && <span>⏱️ Prep Time: {recipe.prepTime} min</span>}

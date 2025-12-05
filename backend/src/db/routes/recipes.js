@@ -6,6 +6,9 @@ import {
   createRecipe,
   updateRecipe,
   deleteRecipe,
+  likeRecipe,
+  unlikeRecipe,
+  getMostPopularRecipes,
 } from '../services/recipes.js'
 import { requireAuth } from '../../middleware/jwt.js'
 
@@ -27,6 +30,17 @@ export function recipesRoutes(app) {
       }
     } catch (err) {
       console.error('error listing recipes', err)
+      return res.status(500).end()
+    }
+  })
+
+  app.get('/api/v1/recipes/popular', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit) || 10
+      const recipes = await getMostPopularRecipes(limit)
+      return res.json(recipes)
+    } catch (err) {
+      console.error('error getting popular recipes', err)
       return res.status(500).end()
     }
   })
@@ -70,6 +84,30 @@ export function recipesRoutes(app) {
       return res.status(204).end()
     } catch (err) {
       console.error('error deleting recipe', err)
+      return res.status(500).end()
+    }
+  })
+
+  // Like a recipe
+  app.post('/api/v1/recipes/:id/like', requireAuth, async (req, res) => {
+    try {
+      const recipe = await likeRecipe(req.auth.sub, req.params.id)
+      if (!recipe) return res.status(404).end()
+      return res.json(recipe)
+    } catch (err) {
+      console.error('error liking recipe', err)
+      return res.status(500).end()
+    }
+  })
+
+  // Unlike a recipe
+  app.delete('/api/v1/recipes/:id/like', requireAuth, async (req, res) => {
+    try {
+      const recipe = await unlikeRecipe(req.auth.sub, req.params.id)
+      if (!recipe) return res.status(404).end()
+      return res.json(recipe)
+    } catch (err) {
+      console.error('error unliking recipe', err)
       return res.status(500).end()
     }
   })

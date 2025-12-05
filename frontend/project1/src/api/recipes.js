@@ -11,6 +11,11 @@ export const getRecipeById = async (id) => {
   return await res.json()
 }
 
+export const getPopularRecipes = async (limit = 10) => {
+  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/recipes/popular?limit=${limit}`)
+  return await res.json()
+}
+
 export const createRecipe = async (token, recipe) => {
   const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/recipes`, {
     method: 'POST',
@@ -43,4 +48,24 @@ export const deleteRecipe = async (token, id) => {
     },
   })
   return res.status === 204
+}
+
+export const likeRecipe = async (token, id) => {
+  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/recipes/${id}/like`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return await res.json()
+}
+
+export const unlikeRecipe = async (token, id) => {
+  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/recipes/${id}/like`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return await res.json()
 }
