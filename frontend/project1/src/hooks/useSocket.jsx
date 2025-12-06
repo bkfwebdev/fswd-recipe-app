@@ -9,31 +9,37 @@ export function useSocket() {
     // Extract the base URL from VITE_BACKEND_URL (remove /api/v1)
     const backendUrl = import.meta.env.VITE_BACKEND_URL.replace('/api/v1', '')
     
+    console.log('Connecting to Socket.io server at:', backendUrl)
+    
     const socketInstance = io(backendUrl, {
-      transports: ['websocket', 'polling']
+      transports: ['polling', 'websocket'],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5
     })
 
     socketInstance.on('connect', () => {
-      console.log('Connected to Socket.io server')
+      console.log('✅ Connected to Socket.io server, ID:', socketInstance.id)
+    })
+
+    socketInstance.on('connect_error', (error) => {
+      console.error('❌ Socket connection error:', error)
     })
 
     socketInstance.on('newRecipe', (recipe) => {
-      console.log('New recipe notification:', recipe)
+      console.log('📢 New recipe notification received:', recipe)
       setNotification(recipe)
-      
-      // Auto-hide notification after 10 seconds
-      setTimeout(() => {
-        setNotification(null)
-      }, 10000)
+      // No auto-dismiss - user must manually dismiss or click the link
     })
 
-    socketInstance.on('disconnect', () => {
-      console.log('Disconnected from Socket.io server')
+    socketInstance.on('disconnect', (reason) => {
+      console.log('❌ Disconnected from Socket.io server. Reason:', reason)
     })
 
     setSocket(socketInstance)
 
     return () => {
+      console.log('Cleaning up socket connection')
       socketInstance.disconnect()
     }
   }, [])
